@@ -25,11 +25,13 @@ static tuple <bool, string> validMove(string move, vector<string> location) {
 	return foo;
 }
 
+//Plays a random move by picking a pseudo random number within the range of values in the valid locations vector
 void AI::randomMove(Buildboard &board) {
 	int i = rand() % board.validLocations.size();
 	move = board.validLocations[i];
 }
 
+//Plays an empty side by checking if any of the 4 sides are on the valid moves list
 void AI::emptySide(Buildboard &board) {
 	for (int i = 0; i < board.validLocations.size(); i++) {
 		if (board.validLocations[i].compare("A2")) {
@@ -47,6 +49,7 @@ void AI::emptySide(Buildboard &board) {
 	}
 }
 
+// Plays an empty corner by checking if any of the corners are on the valid locations list
 void AI::emptyCorner(Buildboard &board) {
 	for (int i = 0; i < board.validLocations.size(); i++) {
 		if (board.validLocations[i].compare("A1")) {
@@ -64,6 +67,7 @@ void AI::emptyCorner(Buildboard &board) {
 	}
 }
 
+//Plays in an empty opposing corner by checking for empty corners opposite where the player has played
 void AI::oppositeCorner(vector <string> playerMoves, Buildboard &board) {
 	for (int i = 0; i < playerMoves.size(); i++) {
 		if (playerMoves[i].compare("A1") == 0) {
@@ -82,16 +86,20 @@ void AI::oppositeCorner(vector <string> playerMoves, Buildboard &board) {
 
 }
 
+// Tries to play in the centre of the board
 void AI::centre(Buildboard &board) {
 	move = "B2";
 }
 
+//Blocks an opponents fork by checking which valid location would give the opponnent more than 1 opportunity to win
 void AI::blockOpponentFork(Player &player, Buildboard &board) {
 	for (int i = 0; i < board.validLocations.size(); i++) {
 		int count = 0;
 		for (int j = 0; j < player.winningCombo.size(); j++) {
-			if (find(player.winningCombo[j].begin(), player.winningCombo[j].end(), board.validLocations[i]) != player.winningCombo[j].end()) {
-				count++;
+			if (player.winningCombo[j].size() == 2) {
+				if (find(player.winningCombo[j].begin(), player.winningCombo[j].end(), board.validLocations[i]) != player.winningCombo[j].end()) {
+					count++;
+				}
 			}
 		}
 
@@ -102,12 +110,14 @@ void AI::blockOpponentFork(Player &player, Buildboard &board) {
 }
 
 void AI::fork(Buildboard &board) {
-//Fork
+//Fork by checking which valid location would give the AI more than one opportunity to win
 	for (int i = 0; i < board.validLocations.size(); i++) {
 		int count = 0;
 		for (int j = 0; j < winningCombo.size(); j++) {
-			if (find(winningCombo[j].begin(), winningCombo[j].end(), board.validLocations[i]) != winningCombo[j].end()) {
-				count++;
+			if (winningCombo[j].size() == 2) {
+				if (find(winningCombo[j].begin(), winningCombo[j].end(), board.validLocations[i]) != winningCombo[j].end()) {
+					count++;
+				}
 			}
 		}
 
@@ -118,7 +128,7 @@ void AI::fork(Buildboard &board) {
 }
 
 void AI::block(Player &player, Buildboard &board) {
-//Block
+//Block by checking which location the player needs to play to win
 	for (int i = 0; i < player.winningCombo.size(); i++) {
 		if (player.winningCombo[i].size() == 1) {
 			move = player.winningCombo[i][0];
@@ -126,6 +136,7 @@ void AI::block(Player &player, Buildboard &board) {
 	}
 }
 
+//Win by playing the last move required in a winning combo
 void AI::win() {
 	for (int i = 0; i < winningCombo.size(); i++) {
 		if (winningCombo[i].size() == 1) {
@@ -134,7 +145,7 @@ void AI::win() {
 	}
 }
 
-void AI::playerTurn(Buildboard &board) {
+void AI::playerTurn(Player &player, Buildboard &board) {
 
 	isValid = validMove(move, (board.validLocations));
 
@@ -147,6 +158,17 @@ void AI::playerTurn(Buildboard &board) {
 
 	for (int i = 0; i < winningCombo.size(); i++) {
 		winningCombo[i].erase(remove(winningCombo[i].begin(), winningCombo[i].end(), move), winningCombo[i].end());
+	}
+
+// Following iterator removes winning combinations from the player's list if that spot was just taken by the AI
+	vector<vector <string>>::iterator it = player.winningCombo.begin();
+	for (; it != player.winningCombo.end(); ) {
+		if (find((*it).begin(), (*it).end(), move) != (*it).end()) {
+			it = player.winningCombo.erase(it);
+		}
+		else {
+			++it;
+		}
 	}
 }
 

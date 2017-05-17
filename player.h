@@ -13,7 +13,7 @@ public:
 	string name; //String to hold the name of the player
 	string playerCharacter; //String to hold player character x OR o
 	bool isWinner(); //Checks if the player has won
-	void playerTurn(Buildboard &board); //Executes the move
+	void playerTurn(AI &ai, Buildboard &board); //Executes the move
 private:
 	vector < vector <string> > winningCombo = // Vector that holds vectors of winning combinations of locations
 	{

@@ -53,6 +53,7 @@ int main() {
 // Create 2 player objects
 		Player Player1;
 		Player Player2;
+		AI ai;
 
 // Get Player 1's name
 		cout << "Player 1 goes first." << endl << endl;
@@ -96,7 +97,7 @@ int main() {
 			}
 
 			if (player1Turn) {
-				Player1.playerTurn(gameBoard); //Execute player 1's turn
+				Player1.playerTurn(ai, gameBoard); //Execute player 1's turn
 				gameBoard.print();
 
 				if (Player1.isWinner()) { //Check if player 1 has won after that turn
@@ -107,7 +108,7 @@ int main() {
 				player1Turn = !player1Turn; // Switch turn to player 2
 			}
 			else {
-				Player2.playerTurn(gameBoard); //Execute player 2's turn
+				Player2.playerTurn(ai, gameBoard); //Execute player 2's turn
 				gameBoard.print();
 
 				if (Player2.isWinner()) { //CHeck if player 2 has won
@@ -164,19 +165,19 @@ int main() {
 
 		string difficultySTR; // Store user input for game difficulty
 
-		cout << "Please enter difficulty from 1 - 5, with 5 being the perfect CPU: ";
+		cout << "Please enter difficulty from 0 - 5, with 5 being the perfect AI: ";
 		getline(cin, difficultySTR);
 
 		// Keep asking till user enter's valid difficulty
-		while (difficultySTR.compare("1") != 0 && difficultySTR.compare("2") != 0 && difficultySTR.compare("3") != 0 && difficultySTR.compare("4") != 0 && difficultySTR.compare("5") != 0) {
-			cout << endl << "That is not a valid difficulty. Please enter a number from 1 to 5: ";
+		while (difficultySTR.compare("0") != 0 && difficultySTR.compare("1") != 0 && difficultySTR.compare("2") != 0 && difficultySTR.compare("3") != 0 && difficultySTR.compare("4") != 0 && difficultySTR.compare("5") != 0) {
+			cout << endl << "That is not a valid difficulty. Please enter a number from 0 to 5: ";
 			getline(cin, difficultySTR);
 		}
 
 		int difficulty = stoi(difficultySTR); //Store difficulty as an int rather than a string
-		difficulty = difficulty * 20;			// Scale difficulty up to a number between 20 and 100 inclusive, 20, 40, 60, 80 or 100
+		difficulty = difficulty * 20;			// Scale difficulty up to a number between 20 and 100 inclusive 0, 20, 40, 60, 80 or 100
 
-// CHeck is player or AI has won
+// Check if player or AI has won
 		while (!Player1.isWinner() && !AI.isWinner()) {
 			if (gameBoard.isFull()) {
 				cout << endl << "Game Over! DRAW!" << endl;
@@ -186,7 +187,7 @@ int main() {
 			if (player1Turn) {
 				// Refresh board and execute players turn
 				gameBoard.print();
-				Player1.playerTurn(gameBoard);
+				Player1.playerTurn(AI, gameBoard);
 				gameBoard.print();
 
 				// Check if player has won
@@ -237,16 +238,18 @@ int main() {
 				At difficulty level 5 the AI wil play the perfect game by executing all the moves according to the priority as outlined above.
 				*/
 
-				//Always attempts to win first. Regardless
-				AI.win();
+				//Attempt to win
+				if (difficulty > 19 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+					AI.win();
+				}
 
 				// If cant win then block
-				if (difficulty > 10 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+				if (difficulty > 19 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
 					AI.block(Player1, gameBoard);
 				}
 
-				// If nothing to block the n create a fork
-				if (difficulty > 25 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+				// If nothing to block then create a fork
+				if (difficulty > 39 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
 					AI.fork(gameBoard);
 				}
 
@@ -256,17 +259,17 @@ int main() {
 				}
 
 				// If no fork to block then play in the centre
-				if (difficulty > 55 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+				if (difficulty > 59 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
 					AI.centre(gameBoard);
 				}
 
 				// If centre is invalid then play in the opposite corner of where player has played
-				if (difficulty > 70 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+				if (difficulty > 79 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
 					AI.oppositeCorner(player1Moves, gameBoard);
 				}
 
 				// If no opposite corners are valid then play in an empty corner
-				if (difficulty > 85 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+				if (difficulty > 79 && get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
 					AI.emptyCorner(gameBoard);
 				}
 
@@ -276,9 +279,12 @@ int main() {
 				}
 
 				// If nothing above is valid then play a random valid move
-				AI.randomMove(gameBoard);
+				if (get<0>(validMove(AI.move, gameBoard.validLocations)) == false) {
+					AI.randomMove(gameBoard);
+				}
 
-				AI.playerTurn(gameBoard);
+				//Execute the move
+				AI.playerTurn(Player1, gameBoard);
 
 				gameBoard.print();
 
@@ -295,9 +301,5 @@ int main() {
 		}
 	}
 
-	/*string exit;
-	cout << "Press enter to exit";
-	getline(cin, exit);
-	*/
 	return 0;
 }
