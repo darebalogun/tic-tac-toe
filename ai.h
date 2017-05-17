@@ -13,10 +13,11 @@
 using namespace std;
 
 class AI { // AI class is similar to player class but has access to the players moves as well.
+	friend class player;
 public:
 	string move; // Holds the move the AI is currently considering
 	string playerCharacter; //Holds the character of the AI. x OR o
-	void playerTurn(Buildboard &board); //Similar to the playerTurn function in the player class
+	void playerTurn(Player &player, Buildboard &board); //Similar to the playerTurn function in the player class
 	bool isWinner(); //Checks if the AI has won the game
 	void win(); //AI attempts to win the game
 	void block(Player &player, Buildboard &board); //AI attempts to block the player from winning
@@ -28,7 +29,6 @@ public:
 	void emptySide(Buildboard &board); //Plays on an empty side
 	void randomMove(Buildboard &board); //Plays a completely pseudorandom move
 
-private:
 	vector < vector <string> > winningCombo = //vector of vectors that hold all possible winning combinations
 	{
 		{ "A1", "B1", "C1" },
@@ -40,6 +40,8 @@ private:
 		{ "A1", "B2", "C3" },
 		{ "A3", "B2", "C1" }
 	};
+
+private:
 	tuple <bool, string> isValid;
 };
 

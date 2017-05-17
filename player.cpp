@@ -6,6 +6,7 @@
 #include <tuple>
 #include <stdlib.h>
 #include "player.h"
+#include "ai.h"
 #include "buildboard.h"
 
 using namespace std;
@@ -32,7 +33,7 @@ static string upperCase(const string & s) {
 	return v;
 }
 
-void Player::playerTurn(Buildboard &board) { 
+void Player::playerTurn(AI &ai, Buildboard &board) { 
 // Method executes the player's turn. Parameter is an object of the Buildboard class
 // Ask the user for the location of next move and check if the move is valid
 	cout << name +"'s turn" << endl;
@@ -61,6 +62,17 @@ void Player::playerTurn(Buildboard &board) {
 // Also remove the location from the vector of vectors of winning combo strings
 	for (int i = 0; i < winningCombo.size(); i++) {
 		winningCombo[i].erase(remove(winningCombo[i].begin(), winningCombo[i].end(), location), winningCombo[i].end());
+	}
+	
+// Following iterator removes winning combinations from the AI's list if that spot was just taken by the player
+	vector<vector <string>>::iterator it = ai.winningCombo.begin();
+	for (; it != ai.winningCombo.end(); ) {
+		if (find((*it).begin(), (*it).end(), location) != (*it).end()) {
+			it = ai.winningCombo.erase(it);
+		}
+		else {
+			++it;
+		}
 	}
 }
 
